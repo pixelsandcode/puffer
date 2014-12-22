@@ -7,9 +7,6 @@
     "boom": "^2.6.1",
     "couchbase": "^2.0.2"
   },
-  "peerDependencies": {
-    "hapi": "^7.5.2"
-  },
   "engines": {
     "node": "0.10.*"
   },
