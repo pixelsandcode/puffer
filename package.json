@@ -5,7 +5,6 @@
   "main": "main",
   "dependencies": {
     "boom": "^2.6.1",
-    "chai": "^1.10.0",
     "couchbase": "^2.0.2"
   },
   "peerDependencies": {
@@ -15,7 +14,19 @@
     "node": "0.10.*"
   },
   "author": "Arash Karimzadeh",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:tectual/puffer.git"
+  },
   "bugs": {
     "url": "https://github.com/tectual/puffer/issues"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "coffee-script": "^1.8.0",
+    "mocha": "^2.0.1"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec --compilers coffee:coffee-script/register"
   }
 }
