@@ -1,0 +1,21 @@
+{
+  "name": "puffer",
+  "description": "Extendable Couchbase ODM for Hapi js",
+  "version": "0.1.0",
+  "main": "main",
+  "dependencies": {
+    "boom": "^2.6.1",
+    "chai": "^1.10.0",
+    "couchbase": "^2.0.2"
+  },
+  "peerDependencies": {
+    "hapi": "^7.5.2"
+  },
+  "engines": {
+    "node": "0.10.*"
+  },
+  "author": "Arash Karimzadeh",
+  "bugs": {
+    "url": "https://github.com/tectual/puffer/issues"
+  }
+}
