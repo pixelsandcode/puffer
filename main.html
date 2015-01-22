@@ -5,7 +5,9 @@
 new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; }
  // In file model.coffee
 puffer = require(&#39;puffer&#39;).instance
-puffer.create( &#39;doc1&#39;, { color: &#39;red&#39; } )</code></pre></div></div><div class="code"><div class="wrapper">CB = <span class="hljs-built_in">require</span> <span class="hljs-string">'couchbase'</span>
+puffer.create( &#39;doc1&#39;, { color: &#39;red&#39; } )
+ // You can even run it in mock mode
+new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; }, true</code></pre></div></div><div class="code"><div class="wrapper">CB = <span class="hljs-built_in">require</span> <span class="hljs-string">'couchbase'</span>
 Boom = <span class="hljs-built_in">require</span> <span class="hljs-string">'boom'</span>
 
 Q = <span class="hljs-built_in">require</span>(<span class="hljs-string">'q'</span>)
@@ -15,9 +17,13 @@ Q = <span class="hljs-built_in">require</span>(<span class="hljs-string">'q'</sp
   
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Couchbase</span></span>
   
-  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(options)</span> -&gt;</span>
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(options, mock)</span> -&gt;</span>
     host = <span class="hljs-keyword">if</span> options.port? <span class="hljs-keyword">then</span> <span class="hljs-string">"<span class="hljs-subst">#{options.host}</span>:<span class="hljs-subst">#{options.port}</span>"</span> <span class="hljs-keyword">else</span> options.host
-    cluster = <span class="hljs-keyword">new</span> CB.Cluster host
+    cluster = <span class="hljs-keyword">if</span> mock? <span class="hljs-keyword">and</span> mock
+      <span class="hljs-built_in">console</span>.log <span class="hljs-string">'Running mock Couchbase server...'</span>
+      <span class="hljs-keyword">new</span> CB.Mock.Cluster
+    <span class="hljs-keyword">else</span>
+      <span class="hljs-keyword">new</span> CB.Cluster host
     <span class="hljs-property">@bucket</span> = cluster.openBucket options.name
   </div></div></div><div class="segment"><div class="comments doc-section doc-section-private"><div class="wrapper"><p><span class='doc-section-header'>Private method</span></p>
 <h2 id="-exec-name-id-doc">_exec( name, id, [doc])</h2>
@@ -73,6 +79,6 @@ puffer.commit(query).then( (d)-&gt; console.log d )</code></pre></div></div><div
   
   <span class="hljs-property">@instance</span>: <span class="hljs-literal">null</span>
 
-  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(options)</span> -&gt;</span>
-    Database.instance = <span class="hljs-keyword">new</span> Couchbase options
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(options, mock)</span> -&gt;</span>
+    Database.instance = <span class="hljs-keyword">new</span> Couchbase options, mock
     <span class="hljs-keyword">return</span> Database.instance</div></div></div></div></body></html>
