@@ -10,7 +10,7 @@ describe 'Puffer', ->
   doc1   = { color: 'red' }
   doc2Id = "puffer:#{uuid.v1()}"
   doc2   = { color: 'blue' }
-  puffer = new require('../build/main')( { host: host, name: name } )
+  puffer = new require('../build/main') { host: host, name: name }, true 
 
   it "should create and get a document", ->
     puffer.create( doc1Id, doc1 )

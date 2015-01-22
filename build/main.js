@@ -12,10 +12,10 @@
   };
 
   Couchbase = (function() {
-    function Couchbase(options) {
+    function Couchbase(options, mock) {
       var cluster, host;
       host = options.port != null ? "" + options.host + ":" + options.port : options.host;
-      cluster = new CB.Cluster(host);
+      cluster = (mock != null) && mock ? (console.log('Running mock Couchbase server...'), new CB.Mock.Cluster) : new CB.Cluster(host);
       this.bucket = cluster.openBucket(options.name);
     }
 
@@ -66,8 +66,8 @@
   module.exports = Database = (function() {
     Database.instance = null;
 
-    function Database(options) {
-      Database.instance = new Couchbase(options);
+    function Database(options, mock) {
+      Database.instance = new Couchbase(options, mock);
       return Database.instance;
     }
 

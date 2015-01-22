@@ -11,6 +11,9 @@
 #   puffer = require('puffer').instance
 #   puffer.create( 'doc1', { color: 'red' } )
 # 
+#   // You can even run it in mock mode
+#   new require('puffer') { host: '127.0.0.1', name: 'default' }, true
+# 
 CB = require 'couchbase'
 Boom = require 'boom'
 
@@ -21,9 +24,13 @@ errorHandler = (ex) ->
   
 class Couchbase
   
-  constructor: (options) ->
+  constructor: (options, mock) ->
     host = if options.port? then "#{options.host}:#{options.port}" else options.host
-    cluster = new CB.Cluster host
+    cluster = if mock? and mock
+      console.log 'Running mock Couchbase server...'
+      new CB.Mock.Cluster
+    else
+      new CB.Cluster host
     @bucket = cluster.openBucket options.name
   
   # ## _exec( name, id, [doc])
@@ -143,7 +150,7 @@ module.exports = class Database
   
   @instance: null
 
-  constructor: (options) ->
-    Database.instance = new Couchbase options
+  constructor: (options, mock) ->
+    Database.instance = new Couchbase options, mock
     return Database.instance
 
