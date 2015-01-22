@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="en"><head><title>main</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="main"><meta name="groc-project-path" content="src/main.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/main.coffee</div></div><div id="document"><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="-couchbase-https-www-npmjs-com-package-couchbase-q-https-www-npmjs-com-package-q-"><a href="https://www.npmjs.com/package/couchbase">Couchbase</a> + <a href="https://www.npmjs.com/package/q">Q</a></h2>
+<p>This will create a single couchbase instance with promises on top.</p>
+<p>Example:</p>
+<pre><code> // File setup.coffee
+new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; }
+ // In file model.coffee
+puffer = require(&#39;puffer&#39;).instance
+puffer.create( &#39;doc1&#39;, { color: &#39;red&#39; } )</code></pre></div></div><div class="code"><div class="wrapper">CB = <span class="hljs-built_in">require</span> <span class="hljs-string">'couchbase'</span>
+Boom = <span class="hljs-built_in">require</span> <span class="hljs-string">'boom'</span>
+
+Q = <span class="hljs-built_in">require</span>(<span class="hljs-string">'q'</span>)
+<span class="hljs-function">
+<span class="hljs-title">errorHandler</span> = <span class="hljs-params">(ex)</span> -&gt;</span>
+  Boom.serverTimeout ex.message
+  
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Couchbase</span></span>
+  
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(options)</span> -&gt;</span>
+    host = <span class="hljs-keyword">if</span> options.port? <span class="hljs-keyword">then</span> <span class="hljs-string">"<span class="hljs-subst">#{options.host}</span>:<span class="hljs-subst">#{options.port}</span>"</span> <span class="hljs-keyword">else</span> options.host
+    cluster = <span class="hljs-keyword">new</span> CB.Cluster host
+    <span class="hljs-property">@bucket</span> = cluster.openBucket options.name
+  </div></div></div><div class="segment"><div class="comments doc-section doc-section-private"><div class="wrapper"><p><span class='doc-section-header'>Private method</span></p>
+<h2 id="-exec-name-id-doc">_exec( name, id, [doc])</h2>
+<p>You should not call this. This is for puffers internal use.</p>
+<p>Example:</p>
+<pre><code>this._exec &quot;insert&quot;, id, doc
+this._exec &quot;get&quot;, id</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">_exec</span>: <span class="hljs-function"><span class="hljs-params">(name)</span> -&gt;</span>
+    Q.npost(<span class="hljs-property">@bucket</span>, name, Array.prototype.slice.call(arguments, <span class="hljs-number">1</span>))
+      .fail(errorHandler)</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-a-document">Create a document</h2>
+<p>This can create a document with given id.</p>
+<p>Example:</p>
+<pre><code> puffer = new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; }
+puffer.create( &#39;doc1&#39;, { color: &#39;red&#39; } )
+puffer.create( &#39;doc2&#39;, { color: &#39;blue&#39; } ).then( (d) -&gt; console.log(d) )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">create</span>: <span class="hljs-function"><span class="hljs-params">(id, doc)</span> -&gt;</span>
+    <span class="hljs-keyword">this</span>._exec <span class="hljs-string">"insert"</span>, id, doc </div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="get-by-id-or-ids">Get by id or ids</h2>
+<p>This can get either an id or multiple ids (as an array) to retrieve document(s)</p>
+<p>Example:</p>
+<pre><code> // Make sure you have stored 2 documents as &#39;doc1&#39;, &#39;doc2&#39; in your couchbase
+ puffer.get(&#39;doc1&#39;).then( (d)-&gt; console.log d )
+
+puffer.get([&#39;doc1&#39;, &#39;doc2&#39;]).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">get</span>: <span class="hljs-function"><span class="hljs-params">(id)</span> -&gt;</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">if</span> id.constructor == Array
+      <span class="hljs-keyword">this</span>._exec <span class="hljs-string">"getMulti"</span>, id
+    <span class="hljs-keyword">else</span>
+      <span class="hljs-keyword">this</span>._exec <span class="hljs-string">"get"</span>, id</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="replace-a-document">Replace a document</h2>
+<p>Replace an existing document with a new one</p>
+<p>Example:</p>
+<pre><code> puffer.replace(&#39;doc1&#39;).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">replace</span>: <span class="hljs-function"><span class="hljs-params">(id, doc)</span> -&gt;</span>
+    <span class="hljs-keyword">this</span>._exec <span class="hljs-string">"replace"</span>, id, doc</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-or-replace-a-document">Create or Replace a document</h2>
+<p>Replace an existing document with a new one</p>
+<p>Example:</p>
+<pre><code> puffer.upsert(&#39;doc1&#39;, { color: &#39;blue&#39; }).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">upsert</span>: <span class="hljs-function"><span class="hljs-params">(id, doc)</span> -&gt;</span>
+    <span class="hljs-keyword">this</span>._exec <span class="hljs-string">"upsert"</span>, id, doc</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="remove-a-document">Remove a document</h2>
+<p>Remove an existing document</p>
+<p>Example:</p>
+<pre><code> puffer.remove(&#39;doc1&#39;).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">remove</span>: <span class="hljs-function"><span class="hljs-params">(id)</span> -&gt;</span>
+    <span class="hljs-keyword">this</span>._exec <span class="hljs-string">"remove"</span>, id</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="atomic-counter">Atomic Counter</h2>
+<p>Atomic increase/decrease a counter </p>
+<p>Example:</p>
+<pre><code> puffer.counter(&#39;doc1&#39;, 1).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">counter</span>: <span class="hljs-function"><span class="hljs-params">(id, step)</span> -&gt;</span>
+    <span class="hljs-keyword">this</span>._exec <span class="hljs-string">"counter"</span>, id, step</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-viewquery">Create ViewQuery</h2>
+<p>This will create a ViewQuery and return for more operations such as range, keys. Read couchbase ViewQuery options.</p>
+<p>Example:</p>
+<pre><code> puffer.from(&#39;users&#39;, &#39;by_email&#39;).range( &#39;a&#39;, &#39;z&#39; )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">from</span>: <span class="hljs-function"><span class="hljs-params">(design, view)</span> -&gt;</span>
+    <span class="hljs-keyword">return</span> CB.ViewQuery.from design, view</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="submit-a-viewquery">Submit a ViewQuery</h2>
+<p>Submit a ViewQuery to couchbase and return the result as a list</p>
+<p>Example:</p>
+<pre><code> query = puffer.from(&#39;users&#39;, &#39;by_email&#39;).limit(5)
+puffer.commit(query).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">commit</span>: <span class="hljs-function"><span class="hljs-params">(query)</span> -&gt;</span>
+    <span class="hljs-keyword">this</span>._exec <span class="hljs-string">"query"</span>, query
+
+<span class="hljs-built_in">module</span>.exports = <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Database</span></span>
+  
+  <span class="hljs-property">@instance</span>: <span class="hljs-literal">null</span>
+
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(options)</span> -&gt;</span>
+    Database.instance = <span class="hljs-keyword">new</span> Couchbase options
+    <span class="hljs-keyword">return</span> Database.instance</div></div></div></div></body></html>
