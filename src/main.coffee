@@ -1,4 +1,4 @@
-# ## Couchbase + Q
+# ## [Couchbase](https://www.npmjs.com/package/couchbase) + [Q](https://www.npmjs.com/package/q)
 #
 # This will create a single couchbase instance with promises on top.
 #

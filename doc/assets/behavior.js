@@ -17,20 +17,9 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
         "projectPath": "README.md",
         "targetPath": "index",
         "pageTitle": "index",
-        "firstHeader": {
-          "type": "heading",
-          "data": {
-            "level": 1,
-            "title": "puffer",
-            "slug": "puffer",
-            "isFileHeader": true
-          },
-          "depth": 1
-        },
-        "title": "puffer"
+        "title": "index"
       },
-      "depth": 1,
-      "outline": []
+      "depth": 1
     }, {
       "type": "file",
       "data": {
@@ -54,14 +43,6 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
       "depth": 1,
       "outline": [
         {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Couchbase + Q",
-            "slug": "couchbase--q"
-          },
-          "depth": 2
-        }, {
           "type": "heading",
           "data": {
             "level": 2,
