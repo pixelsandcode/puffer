@@ -37,6 +37,7 @@
   "config": {
     "blanket": {
       "pattern": "build",
+      "data-cover-never": "node_modules",
       "loader": "./node-loaders/coffee-script"
     }
   }
