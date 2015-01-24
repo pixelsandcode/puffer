@@ -6,8 +6,6 @@
   "dependencies": {
     "boom": "^2.6.1",
     "couchbase": "2.0.4",
-    "coveralls": "^2.11.2",
-    "mocha-lcov-reporter": "0.0.1",
     "q": "^1.1.2"
   },
   "engines": {
@@ -22,6 +20,9 @@
     "url": "https://github.com/tectual/puffer/issues"
   },
   "devDependencies": {
+    "coveralls": "^2.11.2",
+    "mocha-lcov-reporter": "0.0.1",
+    "blanket": "^1.1.6",
     "chai": "^1.10.0",
     "coffee-script": "^1.8.0",
     "groc": "^0.8.0",
@@ -31,6 +32,12 @@
     "node-uuid": "^1.4.2"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec --compilers coffee:coffee-script/register"
+    "test": "mocha --compilers coffee:coffee-script/register --require blanket"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "build",
+      "loader": "./node-loaders/coffee-script"
+    }
   }
 }
