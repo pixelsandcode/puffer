@@ -6,6 +6,8 @@
   "dependencies": {
     "boom": "^2.6.1",
     "couchbase": "2.0.4",
+    "coveralls": "^2.11.2",
+    "mocha-lcov-reporter": "0.0.1",
     "q": "^1.1.2"
   },
   "engines": {
