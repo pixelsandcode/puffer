@@ -47,4 +47,29 @@ describe 'Puffer', ->
             .then (d) ->
               d.output.should.have.deep.property('statusCode').that.equals(503)
       )
-      
+
+  it 'should update a document partially', ->
+    id = 'u1'
+    puffer.create( id, { name: 'Arash' } ).then(
+      -> puffer.update( id, { age: 31 }).then(
+          -> puffer.get(id).then (d) -> d.value.should.eql { name: 'Arash', age: 31 }
+        )
+    )
+    id2 = 'u2'
+    puffer.create( id2, { name: 'Jack' } ).then(
+      -> puffer.update( id2, { name: 'Arash', age: 31 }).then(
+          -> puffer.get(id2).then (d) -> d.value.should.eql { name: 'Arash', age: 31 }
+        )
+    )
+
+  it 'should update a document based on passed method', ->
+    id = 'u3'
+    m = (doc) ->
+      doc.age = 31
+      doc.lastname = 'Smith'
+      doc
+    puffer.create( id, { name: 'Jack', age: 35 } ).then(
+      -> puffer.update( id, m).then(
+          -> puffer.get(id).then (d) -> d.value.should.eql { name: 'Jack', age: 31, lastname: 'Smith' }
+        )
+    )

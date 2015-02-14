@@ -5,9 +5,10 @@ puffer
 [![npm version](https://badge.fury.io/js/puffer.svg)](http://badge.fury.io/js/puffer)
 [![Coverage Status](https://coveralls.io/repos/tectual/puffer/badge.svg?branch=master)](https://coveralls.io/r/tectual/puffer?branch=master)
 
-[Puffer](https://www.npmjs.com/package/puffer) is an extendable Couchbase ODM for Hapi js. It uses [Boom](https://www.npmjs.com/package/boom) to return nicer DB errors and use [Q](https://www.npmjs.com/package/q) to provide promises. 
+[Puffer](https://www.npmjs.com/package/puffer) is an extendable Couchbase library for Hapi js. It uses [Boom](https://www.npmjs.com/package/boom) to return nicer DB errors and use [Q](https://www.npmjs.com/package/q) to provide promises. 
 
-Full documation can be found [here](http://tectual.github.io/puffer/).
+* Full documation can be found [here](http://tectual.github.io/puffer/).
+* Source code is available at [here](https://github.com/tectual/puffer).
 
 ## How to use
 

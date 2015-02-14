@@ -1,3 +1,5 @@
+_ = require 'lodash'
+
 # ## [Couchbase](https://www.npmjs.com/package/couchbase) + [Q](https://www.npmjs.com/package/q)
 #
 # This will create a single couchbase instance with promises on top.
@@ -41,8 +43,8 @@ class Couchbase
   # @private
   #
   # @examples
-  #   this._exec "insert", id, doc
-  #   this._exec "get", id
+  #   @_exec "insert", id, doc
+  #   @_exec "get", id
   #
   _exec: (name) ->
     Q.npost(@bucket, name, Array.prototype.slice.call(arguments, 1))
@@ -59,7 +61,7 @@ class Couchbase
   #   puffer.create( 'doc2', { color: 'blue' } ).then( (d) -> console.log(d) )
   #
   create: (id, doc) ->
-    this._exec "insert", id, doc 
+    @_exec "insert", id, doc 
 
   # ## Get by id or ids
   #
@@ -75,9 +77,9 @@ class Couchbase
   # 
   get: (id) ->
     return if id.constructor == Array
-      this._exec "getMulti", id
+      @_exec "getMulti", id
     else
-      this._exec "get", id
+      @_exec "get", id
 
   # ## Replace a document
   #
@@ -88,8 +90,35 @@ class Couchbase
   #   puffer.replace('doc1').then( (d)-> console.log d )
   #
   replace: (id, doc) ->
-    this._exec "replace", id, doc
+    @_exec "replace", id, doc
 
+  # ## Get & Update a document
+  #
+  # Get and update an existing document. It will update a document partially. You can pass a function like `(doc) ->` which gets the current stored doc as parameter for changes, make sure you are returning the **doc** at the end of function.
+  # 
+  # @param {String}           id    id of document which should be updated
+  # @param {Object|Function}  data  json object which will extend current json document (No deep merge) or a function which has access to current document as first argument and should return the document.
+  # 
+  # @examples
+  #   puffer.update('doc1', { propA: 'Value A' }).then( (doc)-> console.log doc )
+  #   
+  #   modifier = (doc) -> 
+  #     doc.propA = 'Value A'
+  #     doc
+  #   puffer.update('doc1', modifier ).then( (doc)-> console.log doc )
+  #
+  update: (id, data) ->
+    _this = @
+    @get(id).then(
+      (d) ->
+        doc = d.value
+        if _.isFunction data
+          doc = data doc
+        else
+          _.extend doc, data
+        _this.replace id, doc
+    )
+  
   # ## Create or Replace a document
   #
   # Replace an existing document with a new one
@@ -99,7 +128,7 @@ class Couchbase
   #   puffer.upsert('doc1', { color: 'blue' }).then( (d)-> console.log d )
   #
   upsert: (id, doc) ->
-    this._exec "upsert", id, doc
+    @_exec "upsert", id, doc
 
   # ## Remove a document
   #
@@ -110,7 +139,7 @@ class Couchbase
   #   puffer.remove('doc1').then( (d)-> console.log d )
   #
   remove: (id) ->
-    this._exec "remove", id
+    @_exec "remove", id
 
   # ## Atomic Counter 
   #
@@ -121,7 +150,7 @@ class Couchbase
   #   puffer.counter('doc1', 1).then( (d)-> console.log d )
   #
   counter: (id, step) ->
-    this._exec "counter", id, step
+    @_exec "counter", id, step
 
   # ## Create ViewQuery
   #
@@ -144,7 +173,7 @@ class Couchbase
   #   puffer.commit(query).then( (d)-> console.log d )
   #
   commit: (query) ->
-    this._exec "query", query
+    @_exec "query", query
 
 module.exports = class Database
   

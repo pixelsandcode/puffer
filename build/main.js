@@ -1,5 +1,7 @@
 (function() {
-  var Boom, CB, Couchbase, Database, Q, errorHandler;
+  var Boom, CB, Couchbase, Database, Q, errorHandler, _;
+
+  _ = require('lodash');
 
   CB = require('couchbase');
 
@@ -37,6 +39,21 @@
 
     Couchbase.prototype.replace = function(id, doc) {
       return this._exec("replace", id, doc);
+    };
+
+    Couchbase.prototype.update = function(id, data) {
+      var _this;
+      _this = this;
+      return this.get(id).then(function(d) {
+        var doc;
+        doc = d.value;
+        if (_.isFunction(data)) {
+          doc = data(doc);
+        } else {
+          _.extend(doc, data);
+        }
+        return _this.replace(id, doc);
+      });
     };
 
     Couchbase.prototype.upsert = function(id, doc) {
