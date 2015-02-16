@@ -29,11 +29,23 @@
       return this._exec("insert", id, doc);
     };
 
-    Couchbase.prototype.get = function(id) {
+    Couchbase.prototype.get = function(id, clean) {
       if (id.constructor === Array) {
-        return this._exec("getMulti", id);
+        return this._exec("getMulti", id).then(function(data) {
+          if (data.isBoom || (clean == null) || clean === false) {
+            return data;
+          }
+          return _.map(data, function(v) {
+            return v.value;
+          });
+        });
       } else {
-        return this._exec("get", id);
+        return this._exec("get", id).then(function(data) {
+          if (data.isBoom || (clean == null) || clean === false) {
+            return data;
+          }
+          return data.value;
+        });
       }
     };
 

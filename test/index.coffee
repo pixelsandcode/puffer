@@ -10,6 +10,8 @@ describe 'Puffer', ->
   doc1   = { color: 'red' }
   doc2Id = "puffer:#{uuid.v1()}"
   doc2   = { color: 'blue' }
+  doc3Id = "puffer:#{uuid.v1()}"
+  doc3   = { color: 'green' }
   puffer = new require('../build/main') { host: host, name: name }, true 
 
   it "should create and get a document", ->
@@ -21,6 +23,19 @@ describe 'Puffer', ->
               d.should.be.an 'object'
               d.value.should.have.property('color').that.equals('red')
       )
+
+  it "should get only value part of a document", ->
+    puffer.get( doc1Id, true )
+      .then (d) ->
+        d.should.have.property('color').that.equals('red')
+    
+  it "should get only value part of multi documents", ->
+    puffer.create( doc2Id, doc2 ).then(
+      (d) ->
+        puffer.get( [doc1Id, doc2Id], true )
+          .then (d) ->
+            d.should.eql [ { color: 'red' }, { color: 'blue' } ]
+    )
     
   it 'should replace a document with a new one', ->
     puffer.replace( doc1Id, { city: 'Tehran' } )
@@ -40,10 +55,10 @@ describe 'Puffer', ->
             .then (d) ->
               d.output.should.have.deep.property('statusCode').that.equals(503)
       )
-    puffer.remove( doc2Id )
+    puffer.remove( doc3Id )
       .then(
         (d) ->
-          puffer.get( doc2Id )
+          puffer.get( doc3Id )
             .then (d) ->
               d.output.should.have.deep.property('statusCode').that.equals(503)
       )

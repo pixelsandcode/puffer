@@ -67,19 +67,29 @@ class Couchbase
   #
   # This can get either an id or multiple ids (as an array) to retrieve document(s)
   # 
+  # @param {string}           id     id or ids of document(s) to get
+  # @param {boolean}          clean  if the result should only include the value part
+  # 
   # @examples
-  #
   #   // Make sure you have stored 2 documents as 'doc1', 'doc2' in your couchbase
   #
   #   puffer.get('doc1').then( (d)-> console.log d )
   #   
   #   puffer.get(['doc1', 'doc2']).then( (d)-> console.log d )
   # 
-  get: (id) ->
+  get: (id, clean) ->
     return if id.constructor == Array
-      @_exec "getMulti", id
+      @_exec("getMulti", id).then(
+        (data)->
+          return data if data.isBoom || ! clean? || clean == false
+          return _.map data, (v) -> v.value
+      )
     else
-      @_exec "get", id
+      @_exec("get", id).then(
+        (data)->
+          return data if data.isBoom || ! clean? || clean == false
+          return data.value
+      )
 
   # ## Replace a document
   #
