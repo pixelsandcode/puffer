@@ -11,7 +11,7 @@ _ = require 'lodash'
 #
 #   // In file model.coffee
 #   puffer = require('puffer').instance
-#   puffer.create( 'doc1', { color: 'red' } )
+#   puffer.insert( 'doc1', { color: 'red' } )
 # 
 #   // You can even run it in mock mode
 #   new require('puffer') { host: '127.0.0.1', name: 'default' }, true
@@ -35,7 +35,7 @@ class Couchbase
       new CB.Cluster host
     @bucket = cluster.openBucket options.name
   
-  # ## _exec( name, id, [doc])
+  # ## _exec( name, key, [doc])
   #
   # You should not call this. This is for puffers internal use.
   # 
@@ -43,8 +43,8 @@ class Couchbase
   # @private
   #
   # @examples
-  #   @_exec "insert", id, doc
-  #   @_exec "get", id
+  #   @_exec "insert", key, doc
+  #   @_exec "get", key
   #
   _exec: (name) ->
     Q.npost(@bucket, name, Array.prototype.slice.call(arguments, 1))
@@ -52,23 +52,27 @@ class Couchbase
 
   # ## Create a document
   #
-  # This can create a document with given id.
+  # This can create a document with given key.
   # 
   # @examples
   #
   #   puffer = new require('puffer') { host: '127.0.0.1', name: 'default' }
-  #   puffer.create( 'doc1', { color: 'red' } )
-  #   puffer.create( 'doc2', { color: 'blue' } ).then( (d) -> console.log(d) )
+  #   puffer.insert( 'doc1', { color: 'red' } )
+  #   puffer.insert( 'doc2', { color: 'blue' } ).then( (d) -> console.log(d) )
   #
-  create: (id, doc) ->
-    @_exec "insert", id, doc 
+  insert: (key, doc, options) ->
+    options ||= {}
+    @_exec "insert", key, doc, options 
 
-  # ## Get by id or ids
+  # ## Get by key or keys
   #
-  # This can get either an id or multiple ids (as an array) to retrieve document(s)
+  # This can get either an key or multiple keys (as an array) to retrieve document(s).
   # 
-  # @param {string}           id     id or ids of document(s) to get
+  # @param {string}           key     key or keys of document(s) to get
   # @param {boolean}          clean  if the result should only include the value part
+  # 
+  # @method get(key, [clean=true])
+  # @public
   # 
   # @examples
   #   // Make sure you have stored 2 documents as 'doc1', 'doc2' in your couchbase
@@ -77,15 +81,15 @@ class Couchbase
   #   
   #   puffer.get(['doc1', 'doc2']).then( (d)-> console.log d )
   # 
-  get: (id, clean) ->
-    return if id.constructor == Array
-      @_exec("getMulti", id).then(
+  get: (key, clean) ->
+    return if key.constructor == Array
+      @_exec("getMulti", key).then(
         (data)->
           return data if data.isBoom || ! clean? || clean == false
           return _.map data, (v) -> v.value
       )
     else
-      @_exec("get", id).then(
+      @_exec("get", key).then(
         (data)->
           return data if data.isBoom || ! clean? || clean == false
           return data.value
@@ -98,16 +102,19 @@ class Couchbase
   # @examples
   #
   #   puffer.replace('doc1').then( (d)-> console.log d )
+  #   puffer.replace('doc1', { cas: { '0': 1927806976, '1': 2727156638 } } ).then( (d)-> console.log d )
   #
-  replace: (id, doc) ->
-    @_exec "replace", id, doc
+  replace: (key, doc, options) ->
+    options ||= {}
+    @_exec "replace", key, doc, options
 
   # ## Get & Update a document
   #
   # Get and update an existing document. It will update a document partially. You can pass a function like `(doc) ->` which gets the current stored doc as parameter for changes, make sure you are returning the **doc** at the end of function.
   # 
-  # @param {String}           id    id of document which should be updated
-  # @param {Object|Function}  data  json object which will extend current json document (No deep merge) or a function which has access to current document as first argument and should return the document.
+  # @param {String}           key      key of document which should be updated
+  # @param {Object|Function}  data     json object which will extend current json document (No deep merge) or a function which has access to current document as first argument and should return the document.
+  # @param {Boolean}          withCas  if true, it will add CAS in replace method
   # 
   # @examples
   #   puffer.update('doc1', { propA: 'Value A' }).then( (doc)-> console.log doc )
@@ -117,16 +124,16 @@ class Couchbase
   #     doc
   #   puffer.update('doc1', modifier ).then( (doc)-> console.log doc )
   #
-  update: (id, data) ->
+  update: (key, data, withCas) ->
     _this = @
-    @get(id).then(
+    @get(key).then(
       (d) ->
         doc = d.value
         if _.isFunction data
           doc = data doc
         else
           _.extend doc, data
-        _this.replace id, doc
+        _this.replace key, doc, { cas: d.cas }
     )
   
   # ## Create or Replace a document
@@ -137,8 +144,9 @@ class Couchbase
   #
   #   puffer.upsert('doc1', { color: 'blue' }).then( (d)-> console.log d )
   #
-  upsert: (id, doc) ->
-    @_exec "upsert", id, doc
+  upsert: (key, doc, options) ->
+    options ||= {}
+    @_exec "upsert", key, doc, options
 
   # ## Remove a document
   #
@@ -148,8 +156,8 @@ class Couchbase
   #
   #   puffer.remove('doc1').then( (d)-> console.log d )
   #
-  remove: (id) ->
-    @_exec "remove", id
+  remove: (key) ->
+    @_exec "remove", key
 
   # ## Atomic Counter 
   #
@@ -159,8 +167,8 @@ class Couchbase
   #
   #   puffer.counter('doc1', 1).then( (d)-> console.log d )
   #
-  counter: (id, step) ->
-    @_exec "counter", id, step
+  counter: (key, step) ->
+    @_exec "counter", key, step
 
   # ## Create ViewQuery
   #

@@ -132,8 +132,8 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "type": "heading",
           "data": {
             "level": 2,
-            "title": "_exec( name, id, [doc])",
-            "slug": "-exec-name-id-doc"
+            "title": "_exec( name, key, [doc])",
+            "slug": "-exec-name-key-doc"
           },
           "depth": 2
         }, {
@@ -148,8 +148,8 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "type": "heading",
           "data": {
             "level": 2,
-            "title": "Get by id or ids",
-            "slug": "get-by-id-or-ids"
+            "title": "Get by key or keys",
+            "slug": "get-by-key-or-keys"
           },
           "depth": 2
         }, {

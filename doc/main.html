@@ -5,7 +5,7 @@
 new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; }
  // In file model.coffee
 puffer = require(&#39;puffer&#39;).instance
-puffer.create( &#39;doc1&#39;, { color: &#39;red&#39; } )
+puffer.insert( &#39;doc1&#39;, { color: &#39;red&#39; } )
  // You can even run it in mock mode
 new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; }, true</code></pre></div></div><div class="code"><div class="wrapper">CB = <span class="hljs-built_in">require</span> <span class="hljs-string">'couchbase'</span>
 Boom = <span class="hljs-built_in">require</span> <span class="hljs-string">'boom'</span>
@@ -26,23 +26,25 @@ Q = <span class="hljs-built_in">require</span>(<span class="hljs-string">'q'</sp
       <span class="hljs-keyword">new</span> CB.Cluster host
     <span class="hljs-property">@bucket</span> = cluster.openBucket options.name
   </div></div></div><div class="segment"><div class="comments doc-section doc-section-private"><div class="wrapper"><p><span class='doc-section-header'>Private method</span></p>
-<h2 id="-exec-name-id-doc">_exec( name, id, [doc])</h2>
+<h2 id="-exec-name-key-doc">_exec( name, key, [doc])</h2>
 <p>You should not call this. This is for puffers internal use.</p>
 <p>Example:</p>
-<pre><code>@_exec &quot;insert&quot;, id, doc
-@_exec &quot;get&quot;, id</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">_exec</span>: <span class="hljs-function"><span class="hljs-params">(name)</span> -&gt;</span>
+<pre><code>@_exec &quot;insert&quot;, key, doc
+@_exec &quot;get&quot;, key</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">_exec</span>: <span class="hljs-function"><span class="hljs-params">(name)</span> -&gt;</span>
     Q.npost(<span class="hljs-property">@bucket</span>, name, Array.prototype.slice.call(arguments, <span class="hljs-number">1</span>))
       .fail(errorHandler)</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-a-document">Create a document</h2>
-<p>This can create a document with given id.</p>
+<p>This can create a document with given key.</p>
 <p>Example:</p>
 <pre><code> puffer = new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; }
-puffer.create( &#39;doc1&#39;, { color: &#39;red&#39; } )
-puffer.create( &#39;doc2&#39;, { color: &#39;blue&#39; } ).then( (d) -&gt; console.log(d) )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">create</span>: <span class="hljs-function"><span class="hljs-params">(id, doc)</span> -&gt;</span>
-    <span class="hljs-property">@_exec</span> <span class="hljs-string">"insert"</span>, id, doc </div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="get-by-id-or-ids">Get by id or ids</h2>
-<p>This can get either an id or multiple ids (as an array) to retrieve document(s)</p>
+puffer.insert( &#39;doc1&#39;, { color: &#39;red&#39; } )
+puffer.insert( &#39;doc2&#39;, { color: &#39;blue&#39; } ).then( (d) -&gt; console.log(d) )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">insert</span>: <span class="hljs-function"><span class="hljs-params">(key, doc, options)</span> -&gt;</span>
+    options ||= {}
+    <span class="hljs-property">@_exec</span> <span class="hljs-string">"insert"</span>, key, doc, options </div></div></div><div class="segment"><div class="comments doc-section doc-section-public"><div class="wrapper"><p><span class='doc-section-header'>Public method get(key, [clean=true])</span></p>
+<h2 id="get-by-key-or-keys">Get by key or keys</h2>
+<p>This can get either an key or multiple keys (as an array) to retrieve document(s).</p>
 <p>Parameters:</p>
 <ul>
-<li><p><strong>id must be a string.</strong><br/>(id or ids of document(s) to get)</p>
+<li><p><strong>key must be a string.</strong><br/>(key or keys of document(s) to get)</p>
 </li>
 <li><p><strong>clean must be a boolean.</strong><br/>(if the result should only include the value part)</p>
 </li>
@@ -51,29 +53,33 @@ puffer.create( &#39;doc2&#39;, { color: &#39;blue&#39; } ).then( (d) -&gt; conso
 <pre><code>// Make sure you have stored 2 documents as &#39;doc1&#39;, &#39;doc2&#39; in your couchbase
  puffer.get(&#39;doc1&#39;).then( (d)-&gt; console.log d )
 
-puffer.get([&#39;doc1&#39;, &#39;doc2&#39;]).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">get</span>: <span class="hljs-function"><span class="hljs-params">(id, clean)</span> -&gt;</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">if</span> id.constructor == Array
-      <span class="hljs-property">@_exec</span>(<span class="hljs-string">"getMulti"</span>, id).<span class="hljs-keyword">then</span>(
+puffer.get([&#39;doc1&#39;, &#39;doc2&#39;]).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">get</span>: <span class="hljs-function"><span class="hljs-params">(key, clean)</span> -&gt;</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">if</span> key.constructor == Array
+      <span class="hljs-property">@_exec</span>(<span class="hljs-string">"getMulti"</span>, key).<span class="hljs-keyword">then</span>(
         <span class="hljs-function"><span class="hljs-params">(data)</span>-&gt;</span>
           <span class="hljs-keyword">return</span> data <span class="hljs-keyword">if</span> data.isBoom || ! clean? || clean == <span class="hljs-literal">false</span>
           <span class="hljs-keyword">return</span> _.map data, <span class="hljs-function"><span class="hljs-params">(v)</span> -&gt;</span> v.value
       )
     <span class="hljs-keyword">else</span>
-      <span class="hljs-property">@_exec</span>(<span class="hljs-string">"get"</span>, id).<span class="hljs-keyword">then</span>(
+      <span class="hljs-property">@_exec</span>(<span class="hljs-string">"get"</span>, key).<span class="hljs-keyword">then</span>(
         <span class="hljs-function"><span class="hljs-params">(data)</span>-&gt;</span>
           <span class="hljs-keyword">return</span> data <span class="hljs-keyword">if</span> data.isBoom || ! clean? || clean == <span class="hljs-literal">false</span>
           <span class="hljs-keyword">return</span> data.value
       )</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="replace-a-document">Replace a document</h2>
 <p>Replace an existing document with a new one</p>
 <p>Example:</p>
-<pre><code> puffer.replace(&#39;doc1&#39;).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">replace</span>: <span class="hljs-function"><span class="hljs-params">(id, doc)</span> -&gt;</span>
-    <span class="hljs-property">@_exec</span> <span class="hljs-string">"replace"</span>, id, doc</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="get-amp-update-a-document">Get &amp; Update a document</h2>
+<pre><code> puffer.replace(&#39;doc1&#39;).then( (d)-&gt; console.log d )
+puffer.replace(&#39;doc1&#39;, { cas: { &#39;0&#39;: 1927806976, &#39;1&#39;: 2727156638 } } ).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">replace</span>: <span class="hljs-function"><span class="hljs-params">(key, doc, options)</span> -&gt;</span>
+    options ||= {}
+    <span class="hljs-property">@_exec</span> <span class="hljs-string">"replace"</span>, key, doc, options</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="get-amp-update-a-document">Get &amp; Update a document</h2>
 <p>Get and update an existing document. It will update a document partially. You can pass a function like <code>(doc) -&gt;</code> which gets the current stored doc as parameter for changes, make sure you are returning the <strong>doc</strong> at the end of function.</p>
 <p>Parameters:</p>
 <ul>
-<li><p><strong>id must be a String.</strong><br/>(id of document which should be updated)</p>
+<li><p><strong>key must be a String.</strong><br/>(key of document which should be updated)</p>
 </li>
 <li><p><strong>data can be an Object or a Function.</strong><br/>(json object which will extend current json document (No deep merge) or a function which has access to current document as first argument and should return the document.)</p>
+</li>
+<li><p><strong>withCas must be a Boolean.</strong><br/>(if true, it will add CAS in replace method)</p>
 </li>
 </ul>
 <p>Example:</p>
@@ -82,30 +88,31 @@ puffer.get([&#39;doc1&#39;, &#39;doc2&#39;]).then( (d)-&gt; console.log d )</cod
 modifier = (doc) -&gt; 
   doc.propA = &#39;Value A&#39;
   doc
-puffer.update(&#39;doc1&#39;, modifier ).then( (doc)-&gt; console.log doc )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">update</span>: <span class="hljs-function"><span class="hljs-params">(id, data)</span> -&gt;</span>
+puffer.update(&#39;doc1&#39;, modifier ).then( (doc)-&gt; console.log doc )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">update</span>: <span class="hljs-function"><span class="hljs-params">(key, data, withCas)</span> -&gt;</span>
     _this = @
-    <span class="hljs-property">@get</span>(id).<span class="hljs-keyword">then</span>(
+    <span class="hljs-property">@get</span>(key).<span class="hljs-keyword">then</span>(
       <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
         doc = d.value
         <span class="hljs-keyword">if</span> _.isFunction data
           doc = data doc
         <span class="hljs-keyword">else</span>
           _.extend doc, data
-        _this.replace id, doc
+        _this.replace key, doc, { <span class="hljs-attribute">cas</span>: d.cas }
     )
   </div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-or-replace-a-document">Create or Replace a document</h2>
 <p>Replace an existing document with a new one</p>
 <p>Example:</p>
-<pre><code> puffer.upsert(&#39;doc1&#39;, { color: &#39;blue&#39; }).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">upsert</span>: <span class="hljs-function"><span class="hljs-params">(id, doc)</span> -&gt;</span>
-    <span class="hljs-property">@_exec</span> <span class="hljs-string">"upsert"</span>, id, doc</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="remove-a-document">Remove a document</h2>
+<pre><code> puffer.upsert(&#39;doc1&#39;, { color: &#39;blue&#39; }).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">upsert</span>: <span class="hljs-function"><span class="hljs-params">(key, doc, options)</span> -&gt;</span>
+    options ||= {}
+    <span class="hljs-property">@_exec</span> <span class="hljs-string">"upsert"</span>, key, doc, options</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="remove-a-document">Remove a document</h2>
 <p>Remove an existing document</p>
 <p>Example:</p>
-<pre><code> puffer.remove(&#39;doc1&#39;).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">remove</span>: <span class="hljs-function"><span class="hljs-params">(id)</span> -&gt;</span>
-    <span class="hljs-property">@_exec</span> <span class="hljs-string">"remove"</span>, id</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="atomic-counter">Atomic Counter</h2>
+<pre><code> puffer.remove(&#39;doc1&#39;).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">remove</span>: <span class="hljs-function"><span class="hljs-params">(key)</span> -&gt;</span>
+    <span class="hljs-property">@_exec</span> <span class="hljs-string">"remove"</span>, key</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="atomic-counter">Atomic Counter</h2>
 <p>Atomic increase/decrease a counter </p>
 <p>Example:</p>
-<pre><code> puffer.counter(&#39;doc1&#39;, 1).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">counter</span>: <span class="hljs-function"><span class="hljs-params">(id, step)</span> -&gt;</span>
-    <span class="hljs-property">@_exec</span> <span class="hljs-string">"counter"</span>, id, step</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-viewquery">Create ViewQuery</h2>
+<pre><code> puffer.counter(&#39;doc1&#39;, 1).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">counter</span>: <span class="hljs-function"><span class="hljs-params">(key, step)</span> -&gt;</span>
+    <span class="hljs-property">@_exec</span> <span class="hljs-string">"counter"</span>, key, step</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-viewquery">Create ViewQuery</h2>
 <p>This will create a ViewQuery and return for more operations such as range, keys. Read couchbase ViewQuery options.</p>
 <p>Example:</p>
 <pre><code> puffer.from(&#39;users&#39;, &#39;by_email&#39;).range( &#39;a&#39;, &#39;z&#39; )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">from</span>: <span class="hljs-function"><span class="hljs-params">(design, view)</span> -&gt;</span>

@@ -25,13 +25,14 @@
       return Q.npost(this.bucket, name, Array.prototype.slice.call(arguments, 1)).fail(errorHandler);
     };
 
-    Couchbase.prototype.create = function(id, doc) {
-      return this._exec("insert", id, doc);
+    Couchbase.prototype.insert = function(key, doc, options) {
+      options || (options = {});
+      return this._exec("insert", key, doc, options);
     };
 
-    Couchbase.prototype.get = function(id, clean) {
-      if (id.constructor === Array) {
-        return this._exec("getMulti", id).then(function(data) {
+    Couchbase.prototype.get = function(key, clean) {
+      if (key.constructor === Array) {
+        return this._exec("getMulti", key).then(function(data) {
           if (data.isBoom || (clean == null) || clean === false) {
             return data;
           }
@@ -40,7 +41,7 @@
           });
         });
       } else {
-        return this._exec("get", id).then(function(data) {
+        return this._exec("get", key).then(function(data) {
           if (data.isBoom || (clean == null) || clean === false) {
             return data;
           }
@@ -49,14 +50,15 @@
       }
     };
 
-    Couchbase.prototype.replace = function(id, doc) {
-      return this._exec("replace", id, doc);
+    Couchbase.prototype.replace = function(key, doc, options) {
+      options || (options = {});
+      return this._exec("replace", key, doc, options);
     };
 
-    Couchbase.prototype.update = function(id, data) {
+    Couchbase.prototype.update = function(key, data, withCas) {
       var _this;
       _this = this;
-      return this.get(id).then(function(d) {
+      return this.get(key).then(function(d) {
         var doc;
         doc = d.value;
         if (_.isFunction(data)) {
@@ -64,20 +66,23 @@
         } else {
           _.extend(doc, data);
         }
-        return _this.replace(id, doc);
+        return _this.replace(key, doc, {
+          cas: d.cas
+        });
       });
     };
 
-    Couchbase.prototype.upsert = function(id, doc) {
-      return this._exec("upsert", id, doc);
+    Couchbase.prototype.upsert = function(key, doc, options) {
+      options || (options = {});
+      return this._exec("upsert", key, doc, options);
     };
 
-    Couchbase.prototype.remove = function(id) {
-      return this._exec("remove", id);
+    Couchbase.prototype.remove = function(key) {
+      return this._exec("remove", key);
     };
 
-    Couchbase.prototype.counter = function(id, step) {
-      return this._exec("counter", id, step);
+    Couchbase.prototype.counter = function(key, step) {
+      return this._exec("counter", key, step);
     };
 
     Couchbase.prototype.from = function(design, view) {
