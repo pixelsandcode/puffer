@@ -21,7 +21,7 @@
     "url": "https://github.com/tectual/puffer/issues"
   },
   "devDependencies": {
-    "coveralls": "^2.11.2",
+    "coveralls": "2.10.0",
     "mocha-lcov-reporter": "0.0.1",
     "blanket": "^1.1.6",
     "chai": "^1.10.0",
@@ -37,7 +37,9 @@
   },
   "config": {
     "blanket": {
-      "pattern": "build"
+      "pattern": "build",
+      "data-cover-never": [ "node_modules", "test" ],
+      "loader": "./node-loaders/coffee-script"
     }
   }
 }
