@@ -29,7 +29,6 @@ class Couchbase
   constructor: (options, mock) ->
     host = if options.port? then "#{options.host}:#{options.port}" else options.host
     cluster = if mock? and mock
-      console.log 'Running mock Couchbase server...'
       new CB.Mock.Cluster
     else
       new CB.Cluster host

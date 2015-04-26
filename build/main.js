@@ -17,7 +17,7 @@
     function Couchbase(options, mock) {
       var cluster, host;
       host = options.port != null ? "" + options.host + ":" + options.port : options.host;
-      cluster = (mock != null) && mock ? (console.log('Running mock Couchbase server...'), new CB.Mock.Cluster) : new CB.Cluster(host);
+      cluster = (mock != null) && mock ? new CB.Mock.Cluster : new CB.Cluster(host);
       this.bucket = cluster.openBucket(options.name);
     }
 
