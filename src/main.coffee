@@ -36,10 +36,12 @@ class Couchbase
   
   # ## _exec( name, key, [doc])
   #
-  # You should not call this. This is for puffers internal use.
+  # You should not call this directly in your code. This is for puffer's internal use.
   # 
   # @method 
   # @private
+  #
+  # @param {string}           name     name of couchbase method to be called. Rest of passed params will be passed to couchbase method as arguments.
   #
   # @examples
   #   @_exec "insert", key, doc
@@ -51,7 +53,11 @@ class Couchbase
 
   # ## Create a document
   #
-  # This can create a document with given key.
+  # This can create a document with the given key only if the key doesn't exist.
+  #
+  # @param {string}                    key       document name. This can be used to get the document back.
+  # @param {object | string | integer} doc       json object, string or integer to be save.
+  # @param {object}                    options   same as couchbase options for [insert](http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#insert)
   # 
   # @examples
   #
@@ -65,10 +71,10 @@ class Couchbase
 
   # ## Get by key or keys
   #
-  # This can get either an key or multiple keys (as an array) to retrieve document(s).
+  # This can get a document based on a key. Or get documents if you pass an array of keys.
   # 
-  # @param {string}           key     key or keys of document(s) to get
-  # @param {boolean}          clean  if the result should only include the value part
+  # @param {string | array}   key     key or keys of document(s) to get
+  # @param {boolean}          clean   if it is true, it will only return the value part of result
   # 
   # @method get(key, [clean=true])
   # @public
