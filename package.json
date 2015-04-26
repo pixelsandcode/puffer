@@ -33,7 +33,7 @@
     "node-uuid": "^1.4.2"
   },
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script/register  --require blanket --reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js"
+    "test": "mocha --compilers coffee:coffee-script/register "
   },
   "config": {
     "blanket": {
