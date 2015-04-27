@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><title>main</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="main"><meta name="groc-project-path" content="src/main.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/main.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">_ = <span class="hljs-built_in">require</span> <span class="hljs-string">'lodash'</span></div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="-couchbase-https-www-npmjs-com-package-couchbase-q-https-www-npmjs-com-package-q-"><a href="https://www.npmjs.com/package/couchbase">Couchbase</a> + <a href="https://www.npmjs.com/package/q">Q</a></h2>
+<!DOCTYPE html><html lang="en"><head><title>main</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="main"><meta name="groc-project-path" content="src/main.coffee"><meta name="groc-github-url" content="https://github.com/tectual/puffer"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/tectual/puffer/blob/master/src/main.coffee">src/main.coffee</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">_ = <span class="hljs-built_in">require</span> <span class="hljs-string">'lodash'</span></div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="-couchbase-https-www-npmjs-com-package-couchbase-q-https-www-npmjs-com-package-q-"><a href="https://www.npmjs.com/package/couchbase">Couchbase</a> + <a href="https://www.npmjs.com/package/q">Q</a></h2>
 <p>This will create a single couchbase instance with promises on top.</p>
 <p>Example:</p>
 <pre><code> // File setup.coffee
@@ -16,8 +16,15 @@ Q = <span class="hljs-built_in">require</span>(<span class="hljs-string">'q'</sp
   Boom.serverTimeout ex.message
   
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Couchbase</span></span>
-  
-  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(options, mock)</span> -&gt;</span>
+  </div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-a-puffer-instance">Create a puffer instance</h2>
+<p>You cannot call this constructor directly as it is singleton. Check above for examples.</p>
+<p>Parameters:</p>
+<ul>
+<li><p><strong>options must be an object.</strong><br/>(it includes bucket name to connect to, host and port or you can pass all as host. e.g. { host: &#39;localhost&#39;, port: 8200, name: &#39;default&#39; } or { host: &#39;//couchbase&#39;, name: &#39;default&#39; })</p>
+</li>
+<li><p><strong>mock must be a boolean.</strong><br/>(if you want to have mock server pass true.)</p>
+</li>
+</ul></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(options, mock)</span> -&gt;</span>
     host = <span class="hljs-keyword">if</span> options.port? <span class="hljs-keyword">then</span> <span class="hljs-string">"<span class="hljs-subst">#{options.host}</span>:<span class="hljs-subst">#{options.port}</span>"</span> <span class="hljs-keyword">else</span> options.host
     cluster = <span class="hljs-keyword">if</span> mock? <span class="hljs-keyword">and</span> mock
       <span class="hljs-keyword">new</span> CB.Mock.Cluster
@@ -41,7 +48,7 @@ Q = <span class="hljs-built_in">require</span>(<span class="hljs-string">'q'</sp
 <ul>
 <li><p><strong>key must be a string.</strong><br/>(document name. This can be used to get the document back.)</p>
 </li>
-<li><p><strong>doc can be an object , a  string , or a  integer.</strong><br/>(json object, string or integer to be save.)</p>
+<li><p><strong>doc must be a document.</strong><br/>(json object, string or integer which should be saved with the given key.)</p>
 </li>
 <li><p><strong>options must be an object.</strong><br/>(same as couchbase options for <a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#insert">insert</a>)</p>
 </li>
@@ -79,6 +86,15 @@ puffer.get([&#39;doc1&#39;, &#39;doc2&#39;]).then( (d)-&gt; console.log d )</cod
           <span class="hljs-keyword">return</span> data.value
       )</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="replace-a-document">Replace a document</h2>
 <p>Replace an existing document with a new one</p>
+<p>Parameters:</p>
+<ul>
+<li><p><strong>key must be a string.</strong><br/>(key of document which should be replaced)</p>
+</li>
+<li><p><strong>doc must be a document.</strong><br/>(json object, string or integer which should be saved with the given key.)</p>
+</li>
+<li><p><strong>options must be an object.</strong><br/>(same as couchbase options for <a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#replace">replace</a>)</p>
+</li>
+</ul>
 <p>Example:</p>
 <pre><code> puffer.replace(&#39;doc1&#39;).then( (d)-&gt; console.log d )
 puffer.replace(&#39;doc1&#39;, { cas: { &#39;0&#39;: 1927806976, &#39;1&#39;: 2727156638 } } ).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">replace</span>: <span class="hljs-function"><span class="hljs-params">(key, doc, options)</span> -&gt;</span>
@@ -87,9 +103,9 @@ puffer.replace(&#39;doc1&#39;, { cas: { &#39;0&#39;: 1927806976, &#39;1&#39;: 27
 <p>Get and update an existing document. It will update a document partially. You can pass a function like <code>(doc) -&gt;</code> which gets the current stored doc as parameter for changes, make sure you are returning the <strong>doc</strong> at the end of function.</p>
 <p>Parameters:</p>
 <ul>
-<li><p><strong>key must be a String.</strong><br/>(key of document which should be updated)</p>
+<li><p><strong>key must be a string.</strong><br/>(key of document which should be updated)</p>
 </li>
-<li><p><strong>data can be an Object or a Function.</strong><br/>(json object which will extend current json document (No deep merge) or a function which has access to current document as first argument and should return the document.)</p>
+<li><p><strong>data can be an object or a function.</strong><br/>(json object which will extend current json document (No deep merge) or a function which has access to current document as first argument and should return the document.)</p>
 </li>
 <li><p><strong>withCas must be a Boolean.</strong><br/>(if true, it will add CAS in replace method)</p>
 </li>
@@ -98,9 +114,12 @@ puffer.replace(&#39;doc1&#39;, { cas: { &#39;0&#39;: 1927806976, &#39;1&#39;: 27
 <pre><code>puffer.update(&#39;doc1&#39;, { propA: &#39;Value A&#39; }).then( (doc)-&gt; console.log doc )
 
 modifier = (doc) -&gt; 
-  doc.propA = &#39;Value A&#39;
+  doc.year = 2000
   doc
-puffer.update(&#39;doc1&#39;, modifier ).then( (doc)-&gt; console.log doc )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">update</span>: <span class="hljs-function"><span class="hljs-params">(key, data, withCas)</span> -&gt;</span>
+puffer.update(&#39;doc1&#39;, modifier ).then (doc)-&gt;
+  console.log doc
+  doc.year = 2001
+  doc</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">update</span>: <span class="hljs-function"><span class="hljs-params">(key, data, withCas)</span> -&gt;</span>
     _this = @
     <span class="hljs-property">@get</span>(key).<span class="hljs-keyword">then</span>(
       <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
@@ -113,23 +132,61 @@ puffer.update(&#39;doc1&#39;, modifier ).then( (doc)-&gt; console.log doc )</cod
     )
   </div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-or-replace-a-document">Create or Replace a document</h2>
 <p>Replace an existing document with a new one</p>
+<p>Parameters:</p>
+<ul>
+<li><p><strong>key must be a string.</strong><br/>(key of document which should be inserted or updated)</p>
+</li>
+<li><p><strong>doc must be a document.</strong><br/>(json object, string or integer which should be saved with the given key.)</p>
+</li>
+<li><p><strong>options must be an object.</strong><br/>(same as couchbase options for <a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#upsert">upsert</a>)</p>
+</li>
+</ul>
 <p>Example:</p>
 <pre><code> puffer.upsert(&#39;doc1&#39;, { color: &#39;blue&#39; }).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">upsert</span>: <span class="hljs-function"><span class="hljs-params">(key, doc, options)</span> -&gt;</span>
     options ||= {}
     <span class="hljs-property">@_exec</span> <span class="hljs-string">"upsert"</span>, key, doc, options</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="remove-a-document">Remove a document</h2>
 <p>Remove an existing document</p>
+<p>Parameters:</p>
+<ul>
+<li><p><strong>key must be a string.</strong><br/>(key of document which should be removed)</p>
+</li>
+<li><p><strong>options must be an object.</strong><br/>(same as couchbase options for <a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#remove">remove</a>)</p>
+</li>
+</ul>
 <p>Example:</p>
-<pre><code> puffer.remove(&#39;doc1&#39;).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">remove</span>: <span class="hljs-function"><span class="hljs-params">(key)</span> -&gt;</span>
-    <span class="hljs-property">@_exec</span> <span class="hljs-string">"remove"</span>, key</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="atomic-counter">Atomic Counter</h2>
-<p>Atomic increase/decrease a counter </p>
+<pre><code> puffer.remove(&#39;doc1&#39;).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">remove</span>: <span class="hljs-function"><span class="hljs-params">(key, options)</span> -&gt;</span>
+    options ||= {}
+    <span class="hljs-property">@_exec</span> <span class="hljs-string">"remove"</span>, key, options</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="atomic-counter">Atomic Counter</h2>
+<p>Atomic increase/decrease a counter. If the counter doesn&#39;t exist and you pass <strong>initial</strong> in options it will create the counter with intial value.</p>
+<p>Parameters:</p>
+<ul>
+<li><p><strong>key must be a string.</strong><br/>(key of document which should be removed)</p>
+</li>
+<li><p><strong>delta must be an integer.</strong><br/>(the amount to add or subtract from the counter value. This value may be any non-zero integer.)</p>
+</li>
+<li><p><strong>options must be an object.</strong><br/>(same as couchbase options for <a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#counter">counter</a>)</p>
+</li>
+</ul>
 <p>Example:</p>
-<pre><code> puffer.counter(&#39;doc1&#39;, 1).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">counter</span>: <span class="hljs-function"><span class="hljs-params">(key, step)</span> -&gt;</span>
-    <span class="hljs-property">@_exec</span> <span class="hljs-string">"counter"</span>, key, step</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-viewquery">Create ViewQuery</h2>
-<p>This will create a ViewQuery and return for more operations such as range, keys. Read couchbase ViewQuery options.</p>
+<pre><code> puffer.counter(&#39;doc1&#39;, 1, { initial: 5}).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">counter</span>: <span class="hljs-function"><span class="hljs-params">(key, delta, options)</span> -&gt;</span>
+    options ||= {}
+    <span class="hljs-property">@_exec</span> <span class="hljs-string">"counter"</span>, key, delta, options</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="create-viewquery">Create ViewQuery</h2>
+<p>This will create a ViewQuery and return for more operations such as range, keys. Read couchbase (ViewQuery)[<a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/ViewQuery.html">http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/ViewQuery.html</a>] object to understand how you can use it.</p>
+<p>Parameters:</p>
+<ul>
+<li><p><strong>design must be a string.</strong><br/>(the design name to look up.)</p>
+</li>
+<li><p><strong>view must be a string.</strong><br/>(the view name to use for query.)</p>
+</li>
+</ul>
 <p>Example:</p>
 <pre><code> puffer.from(&#39;users&#39;, &#39;by_email&#39;).range( &#39;a&#39;, &#39;z&#39; )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">from</span>: <span class="hljs-function"><span class="hljs-params">(design, view)</span> -&gt;</span>
     <span class="hljs-keyword">return</span> CB.ViewQuery.from design, view</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><h2 id="submit-a-viewquery">Submit a ViewQuery</h2>
 <p>Submit a ViewQuery to couchbase and return the result as a list</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>query must be a ViewQuery.</strong></li>
+</ul>
 <p>Example:</p>
 <pre><code> query = puffer.from(&#39;users&#39;, &#39;by_email&#39;).limit(5)
 puffer.commit(query).then( (d)-&gt; console.log d )</code></pre></div></div><div class="code"><div class="wrapper">  <span class="hljs-attribute">commit</span>: <span class="hljs-function"><span class="hljs-params">(query)</span> -&gt;</span>

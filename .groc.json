@@ -1,3 +1,0 @@
-{
-  "glob": ["src/**/*.coffee", "README.md", "tasks/*.coffee"]
-}
