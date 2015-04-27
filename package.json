@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "coveralls": "2.10.0",
-    "mocha-lcov-reporter": "0.0.1",
+    "mocha-lcov-reporter": "0.0.2",
     "blanket": "^1.1.6",
     "chai": "^1.10.0",
     "coffee-script": "^1.8.0",
@@ -33,7 +33,7 @@
     "node-uuid": "^1.4.2"
   },
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script/register --require blanket --reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js"
+    "test": "mocha --compilers coffee:coffee-script/register --require blanket --reporter mocha-lcov-reporter"
   },
   "config": {
     "blanket": {
