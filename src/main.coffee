@@ -26,6 +26,13 @@ errorHandler = (ex) ->
   
 class Couchbase
   
+  # ## Create a puffer instance
+  #
+  # You cannot call this constructor directly as it is singleton. Check above for examples.
+  #
+  # @param {object}  options     it includes bucket name to connect to, host and port or you can pass all as host. e.g. { host: 'localhost', port: 8200, name: 'default' } or { host: '//couchbase', name: 'default' }
+  # @param {boolean} mock        if you want to have mock server pass true.
+  #
   constructor: (options, mock) ->
     host = if options.port? then "#{options.host}:#{options.port}" else options.host
     cluster = if mock? and mock
@@ -55,9 +62,9 @@ class Couchbase
   #
   # This can create a document with the given key only if the key doesn't exist.
   #
-  # @param {string}                    key       document name. This can be used to get the document back.
-  # @param {object | string | integer} doc       json object, string or integer to be save.
-  # @param {object}                    options   same as couchbase options for [insert](http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#insert)
+  # @param {string}       key       document name. This can be used to get the document back.
+  # @param {document}     doc       json object, string or integer which should be saved with the given key.
+  # @param {object}       options   same as couchbase options for [insert](http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#insert)
   # 
   # @examples
   #
@@ -104,6 +111,10 @@ class Couchbase
   #
   # Replace an existing document with a new one
   # 
+  # @param {string}    key       key of document which should be replaced
+  # @param {document}  doc       json object, string or integer which should be saved with the given key.
+  # @param {object}    options   same as couchbase options for [replace](http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#replace)
+  # 
   # @examples
   #
   #   puffer.replace('doc1').then( (d)-> console.log d )
@@ -117,17 +128,20 @@ class Couchbase
   #
   # Get and update an existing document. It will update a document partially. You can pass a function like `(doc) ->` which gets the current stored doc as parameter for changes, make sure you are returning the **doc** at the end of function.
   # 
-  # @param {String}           key      key of document which should be updated
-  # @param {Object|Function}  data     json object which will extend current json document (No deep merge) or a function which has access to current document as first argument and should return the document.
+  # @param {string}           key      key of document which should be updated
+  # @param {object|function}  data     json object which will extend current json document (No deep merge) or a function which has access to current document as first argument and should return the document.
   # @param {Boolean}          withCas  if true, it will add CAS in replace method
   # 
   # @examples
   #   puffer.update('doc1', { propA: 'Value A' }).then( (doc)-> console.log doc )
   #   
   #   modifier = (doc) -> 
-  #     doc.propA = 'Value A'
+  #     doc.year = 2000
   #     doc
-  #   puffer.update('doc1', modifier ).then( (doc)-> console.log doc )
+  #   puffer.update('doc1', modifier ).then (doc)->
+  #     console.log doc
+  #     doc.year = 2001
+  #     doc
   #
   update: (key, data, withCas) ->
     _this = @
@@ -145,6 +159,10 @@ class Couchbase
   #
   # Replace an existing document with a new one
   # 
+  # @param {string}    key       key of document which should be inserted or updated
+  # @param {document}  doc       json object, string or integer which should be saved with the given key.
+  # @param {object}    options   same as couchbase options for [upsert](http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#upsert)
+  # 
   # @examples
   #
   #   puffer.upsert('doc1', { color: 'blue' }).then( (d)-> console.log d )
@@ -157,27 +175,39 @@ class Couchbase
   #
   # Remove an existing document
   # 
+  # @param {string}    key       key of document which should be removed
+  # @param {object}    options   same as couchbase options for [remove](http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#remove)
+  # 
   # @examples
   #
   #   puffer.remove('doc1').then( (d)-> console.log d )
   #
-  remove: (key) ->
-    @_exec "remove", key
+  remove: (key, options) ->
+    options ||= {}
+    @_exec "remove", key, options
 
   # ## Atomic Counter 
   #
-  # Atomic increase/decrease a counter 
+  # Atomic increase/decrease a counter. If the counter doesn't exist and you pass **initial** in options it will create the counter with intial value.
+  # 
+  # @param {string}    key       key of document which should be removed
+  # @param {integer}   delta     the amount to add or subtract from the counter value. This value may be any non-zero integer.
+  # @param {object}    options   same as couchbase options for [counter](http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/Bucket.html#counter)
   # 
   # @examples
   #
-  #   puffer.counter('doc1', 1).then( (d)-> console.log d )
+  #   puffer.counter('doc1', 1, { initial: 5}).then( (d)-> console.log d )
   #
-  counter: (key, step) ->
-    @_exec "counter", key, step
+  counter: (key, delta, options) ->
+    options ||= {}
+    @_exec "counter", key, delta, options
 
   # ## Create ViewQuery
   #
-  # This will create a ViewQuery and return for more operations such as range, keys. Read couchbase ViewQuery options.
+  # This will create a ViewQuery and return for more operations such as range, keys. Read couchbase (ViewQuery)[http://docs.couchbase.com/sdk-api/couchbase-node-client-2.0.8/ViewQuery.html] object to understand how you can use it.
+  # 
+  # @param {string}   design   the design name to look up.
+  # @param {string}   view     the view name to use for query.
   # 
   # @examples
   #
@@ -189,6 +219,8 @@ class Couchbase
   # ## Submit a ViewQuery
   #
   # Submit a ViewQuery to couchbase and return the result as a list
+  # 
+  # @param {ViewQuery}   query   
   # 
   # @examples
   #
