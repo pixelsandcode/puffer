@@ -18,7 +18,7 @@ You can initialize it in your server and use it in your other files or even othe
 
 In your server.coffee have something like this:
 
-```
+```javascript
 Hapi = require 'hapi'
 new require('puffer')( { host: '127.0.0.1', name: 'default' } )
 ```
