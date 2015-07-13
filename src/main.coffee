@@ -236,9 +236,9 @@ class Couchbase
 
 module.exports = class Database
   
-  @instance: null
+  @instances: []
 
   constructor: (options, mock) ->
-    Database.instance = new Couchbase options, mock
-    return Database.instance
+    Database.instances[options.name] = new Couchbase options, mock
+    return Database.instances[options.name]
 

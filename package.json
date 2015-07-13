@@ -1,7 +1,7 @@
 {
   "name": "puffer",
   "description": "Extendable Couchbase ODM for Hapi js",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "main": "build/main",
   "dependencies": {
     "boom": "^2.6.1",

@@ -26,6 +26,19 @@ describe 'Puffer', ->
     Q.delay(10).then ->
       db.bucket.should.have.property('connected').that.equals true
 
+  it "should connect to more than one bucket", ->
+    db1 = null
+    db2 = null
+    fn2 = ->
+      instances = new require('../build/main').instances
+      instances.should.contain.keys ['tipi', 'analytics']
+      db2.bucket.should.have.property('connected').that.equals true
+    fn1 = ->
+      db1.bucket.should.have.property('connected').that.equals true
+      db2 = new require('../build/main') { host: host, name: 'analytics', callback: fn2 }, true
+
+    db1 = new require('../build/main') { host: host, name: 'tipi', callback: fn1 }, true
+  
   it "should connect to cluster with callback", ->
     db = null
     fn = ->

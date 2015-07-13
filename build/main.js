@@ -107,11 +107,11 @@
   })();
 
   module.exports = Database = (function() {
-    Database.instance = null;
+    Database.instances = [];
 
     function Database(options, mock) {
-      Database.instance = new Couchbase(options, mock);
-      return Database.instance;
+      Database.instances[options.name] = new Couchbase(options, mock);
+      return Database.instances[options.name];
     }
 
     return Database;
