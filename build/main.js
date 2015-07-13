@@ -15,10 +15,17 @@
 
   Couchbase = (function() {
     function Couchbase(options, mock) {
-      var cluster, host;
+      var cluster, host, params;
       host = options.port != null ? "" + options.host + ":" + options.port : options.host;
       cluster = (mock != null) && mock ? new CB.Mock.Cluster : new CB.Cluster(host);
-      this.bucket = cluster.openBucket(options.name);
+      params = [options.name];
+      if (options.password) {
+        params.push(options.password);
+      }
+      if (options.callback) {
+        params.push(options.callback);
+      }
+      this.bucket = cluster.openBucket.apply(cluster, params);
     }
 
     Couchbase.prototype._exec = function(name) {
@@ -77,12 +84,14 @@
       return this._exec("upsert", key, doc, options);
     };
 
-    Couchbase.prototype.remove = function(key) {
-      return this._exec("remove", key);
+    Couchbase.prototype.remove = function(key, options) {
+      options || (options = {});
+      return this._exec("remove", key, options);
     };
 
-    Couchbase.prototype.counter = function(key, step) {
-      return this._exec("counter", key, step);
+    Couchbase.prototype.counter = function(key, delta, options) {
+      options || (options = {});
+      return this._exec("counter", key, delta, options);
     };
 
     Couchbase.prototype.from = function(design, view) {

@@ -8,13 +8,30 @@ name = 'tipi'
 describe 'Puffer', ->
   
   doc1Id = "puffer:#{uuid.v1()}"
+  doc11Id = "puffer:#{uuid.v1()}"
   doc1   = { color: 'red' }
   doc2Id = "puffer:#{uuid.v1()}"
   doc2   = { color: 'blue' }
   doc3Id = "puffer:#{uuid.v1()}"
   doc3   = { color: 'green' }
   puffer = new require('../build/main') { host: host, name: name }, true 
+  
+  it "should connect to cluster with only name", ->
+    db = new require('../build/main') { host: host, name: name }, true
+    Q.delay(10).then ->
+      db.bucket.should.have.property('connected').that.equals true
+  
+  it "should connect to cluster with password", ->
+    db = new require('../build/main') { host: host, name: name, password: 'test' }, true
+    Q.delay(10).then ->
+      db.bucket.should.have.property('connected').that.equals true
 
+  it "should connect to cluster with callback", ->
+    db = null
+    fn = ->
+      db.bucket.should.have.property('connected').that.equals true
+    db = new require('../build/main') { host: host, name: name, callback: fn }, true
+  
   it "should insert and get a document", ->
     puffer.insert( doc1Id, doc1 )
       .then(
@@ -33,12 +50,12 @@ describe 'Puffer', ->
             .then (d) ->
               d.should.be.an 'object'
               d.value.should.have.property('color').that.equals('red')
-          Q.delay(10).then(
-            -> puffer.get( doc1Id ).then(
-                (d) ->
-                  d.should.be.instanceof Error
-               )
-          ).done()
+              Q.delay(20).then(
+                -> puffer.get( doc1Id ).then(
+                    (d) ->
+                      d.should.be.instanceof Error
+                   )
+              ).done()
       )
 
   it "should get only value part of a document", ->
@@ -65,14 +82,16 @@ describe 'Puffer', ->
       )
 
   it 'should fail replacing a document with different CAS', ->
-    puffer.get(doc1Id).then (d) ->
-      cas = d.cas
-      puffer.replace( doc1Id, { city: 'Tehran' } )
-        .then(
-          (d) ->
-            puffer.replace( doc1Id, { city: 'Tehran' }, { cas: cas } )
-              .then (d) -> d.should.be.instanceof Error
-        ).done()
+    puffer.insert( doc11Id, doc1 ).then ->
+      puffer.get(doc11Id).then (d) ->
+        cas = d.cas
+        puffer.replace( doc11Id, { city: 'Tehran' } )
+          .then(
+            (d) ->
+              puffer.replace( doc11Id, { city: 'Tehran' }, { cas: cas } )
+                .then (d) -> 
+                  d.should.be.instanceof Error
+          ).done()
     
   it 'should delete a document', ->
     puffer.remove( doc1Id )

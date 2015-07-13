@@ -30,7 +30,7 @@ class Couchbase
   #
   # You cannot call this constructor directly as it is singleton. Check above for examples.
   #
-  # @param {object}  options     it includes bucket name to connect to, host and port or you can pass all as host. e.g. { host: 'localhost', port: 8200, name: 'default' } or { host: '//couchbase', name: 'default' }
+  # @param {object}  options     it includes bucket name to connect to, host and port or you can pass all as host. e.g. { host: 'localhost', port: 8200, name: 'default' } or { host: '//couchbase', name: 'default' } or { host: 'localhost', name: 'main', password: '123', callback: fn }
   # @param {boolean} mock        if you want to have mock server pass true.
   #
   constructor: (options, mock) ->
@@ -39,7 +39,11 @@ class Couchbase
       new CB.Mock.Cluster
     else
       new CB.Cluster host
-    @bucket = cluster.openBucket options.name
+
+    params = [options.name] 
+    params.push options.password if options.password
+    params.push options.callback if options.callback
+    @bucket = cluster.openBucket.apply cluster, params 
   
   # ## _exec( name, key, [doc])
   #
