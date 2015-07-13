@@ -3,9 +3,13 @@
 <p>Example:</p>
 <pre><code> // File setup.coffee
 new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; }
+new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;analytics&#39; }
  // In file model.coffee
-puffer = require(&#39;puffer&#39;).instance
+puffer = require(&#39;puffer&#39;).instances[&#39;default&#39;]
 puffer.insert( &#39;doc1&#39;, { color: &#39;red&#39; } )
+ // In file analytic.coffee
+puffer = require(&#39;puffer&#39;).instances[&#39;analytics&#39;]
+puffer.insert( &#39;doc1&#39;, { total_hits: 10 } )
  // You can even run it in mock mode
 new require(&#39;puffer&#39;) { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; }, true</code></pre></div></div><div class="code"><div class="wrapper">CB = <span class="hljs-built_in">require</span> <span class="hljs-string">'couchbase'</span>
 Boom = <span class="hljs-built_in">require</span> <span class="hljs-string">'boom'</span>
@@ -20,7 +24,7 @@ Q = <span class="hljs-built_in">require</span>(<span class="hljs-string">'q'</sp
 <p>You cannot call this constructor directly as it is singleton. Check above for examples.</p>
 <p>Parameters:</p>
 <ul>
-<li><p><strong>options must be an object.</strong><br/>(it includes bucket name to connect to, host and port or you can pass all as host. e.g. { host: &#39;localhost&#39;, port: 8200, name: &#39;default&#39; } or { host: &#39;//couchbase&#39;, name: &#39;default&#39; })</p>
+<li><p><strong>options must be an object.</strong><br/>(it includes bucket name to connect to, host and port or you can pass all as host. e.g. { host: &#39;localhost&#39;, port: 8200, name: &#39;default&#39; } or { host: &#39;//couchbase&#39;, name: &#39;default&#39; } or { host: &#39;localhost&#39;, name: &#39;main&#39;, password: &#39;123&#39;, callback: fn })</p>
 </li>
 <li><p><strong>mock must be a boolean.</strong><br/>(if you want to have mock server pass true.)</p>
 </li>
@@ -30,7 +34,11 @@ Q = <span class="hljs-built_in">require</span>(<span class="hljs-string">'q'</sp
       <span class="hljs-keyword">new</span> CB.Mock.Cluster
     <span class="hljs-keyword">else</span>
       <span class="hljs-keyword">new</span> CB.Cluster host
-    <span class="hljs-property">@bucket</span> = cluster.openBucket options.name
+
+    params = [options.name] 
+    params.push options.password <span class="hljs-keyword">if</span> options.password
+    params.push options.callback <span class="hljs-keyword">if</span> options.callback
+    <span class="hljs-property">@bucket</span> = cluster.openBucket.apply cluster, params 
   </div></div></div><div class="segment"><div class="comments doc-section doc-section-private"><div class="wrapper"><p><span class='doc-section-header'>Private method</span></p>
 <h2 id="-exec-name-key-doc">_exec( name, key, [doc])</h2>
 <p>You should not call this directly in your code. This is for puffer&#39;s internal use.</p>
@@ -194,8 +202,8 @@ puffer.commit(query).then( (d)-&gt; console.log d )</code></pre></div></div><div
 
 <span class="hljs-built_in">module</span>.exports = <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Database</span></span>
   
-  <span class="hljs-property">@instance</span>: <span class="hljs-literal">null</span>
+  <span class="hljs-property">@instances</span>: []
 
   <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(options, mock)</span> -&gt;</span>
-    Database.instance = <span class="hljs-keyword">new</span> Couchbase options, mock
-    <span class="hljs-keyword">return</span> Database.instance</div></div></div></div></body></html>
+    Database.instances[options.name] = <span class="hljs-keyword">new</span> Couchbase options, mock
+    <span class="hljs-keyword">return</span> Database.instances[options.name]</div></div></div></div></body></html>

@@ -11,8 +11,8 @@
 <p>You can initialize it in your server and use it in your other files or even other plugins.</p>
 <h3 id="single-module-with-many-files">Single module with many files</h3>
 <p>In your server.coffee have something like this:</p>
-<pre><code>Hapi = require &#39;hapi&#39;
-new require(&#39;puffer&#39;)( { host: &#39;127.0.0.1&#39;, name: &#39;default&#39; } )</code></pre>
+<pre><code class="lang-javascript">Hapi = <span class="hljs-built_in">require</span> <span class="hljs-string">'hapi'</span>
+<span class="hljs-keyword">new</span> <span class="hljs-built_in">require</span>(<span class="hljs-string">'puffer'</span>)( { host: <span class="hljs-string">'127.0.0.1'</span>, name: <span class="hljs-string">'default'</span> } )</code></pre>
 <p>Above line will create an instance of couchbase which you can use in your other files as an example in your userModel.coffee you can use this:</p>
 <pre><code class="lang-javascript">bucket = <span class="hljs-built_in">require</span>(<span class="hljs-string">'puffer'</span>).instance
 bucket.insert( <span class="hljs-string">'doc1'</span>, { color: <span class="hljs-string">'red'</span> } )
