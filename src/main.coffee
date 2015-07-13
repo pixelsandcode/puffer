@@ -8,10 +8,15 @@ _ = require 'lodash'
 #
 #   // File setup.coffee
 #   new require('puffer') { host: '127.0.0.1', name: 'default' }
+#   new require('puffer') { host: '127.0.0.1', name: 'analytics' }
 #
 #   // In file model.coffee
-#   puffer = require('puffer').instance
+#   puffer = require('puffer').instances['default']
 #   puffer.insert( 'doc1', { color: 'red' } )
+# 
+#   // In file analytic.coffee
+#   puffer = require('puffer').instances['analytics']
+#   puffer.insert( 'doc1', { total_hits: 10 } )
 # 
 #   // You can even run it in mock mode
 #   new require('puffer') { host: '127.0.0.1', name: 'default' }, true
