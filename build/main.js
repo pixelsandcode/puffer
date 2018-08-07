@@ -1,5 +1,5 @@
 (function() {
-  var Boom, CB, Couchbase, Database, Q, errorHandler, _;
+  var Boom, CB, Couchbase, Database, Q, _, errorHandler;
 
   _ = require('lodash');
 
@@ -10,13 +10,13 @@
   Q = require('q');
 
   errorHandler = function(ex) {
-    return Boom.serverTimeout(ex.message);
+    return Boom.serverUnavailable(ex.message);
   };
 
   Couchbase = (function() {
     function Couchbase(options, mock) {
       var cluster, host, params;
-      host = options.port != null ? "" + options.host + ":" + options.port : options.host;
+      host = options.port != null ? options.host + ":" + options.port : options.host;
       cluster = (mock != null) && mock ? new CB.Mock.Cluster : new CB.Cluster(host);
       params = [options.name];
       if (options.password) {
