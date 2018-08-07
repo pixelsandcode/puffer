@@ -1,7 +1,7 @@
 {
   "name": "puffer",
   "description": "Extendable Couchbase ODM for Hapi js",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "main": "build/main",
   "dependencies": {
     "boom": "^4.2.0",
@@ -40,7 +40,10 @@
   "config": {
     "blanket": {
       "pattern": "build",
-      "data-cover-never": [ "node_modules", "test" ],
+      "data-cover-never": [
+        "node_modules",
+        "test"
+      ],
       "loader": "./node-loaders/coffee-script"
     }
   }
