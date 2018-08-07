@@ -5,7 +5,7 @@
   "main": "build/main",
   "dependencies": {
     "boom": "^2.6.1",
-    "couchbase": "^2.0.10",
+    "couchbase": "2.4.6",
     "lodash": "^3.2.0",
     "q": "^1.1.2"
   },
